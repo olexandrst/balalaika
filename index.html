@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title data-i18n="pageTitle">ROI калькулятор впровадження ШІ</title>
+<style>
+  :root {
+    --bg: #0f1420;
+    --bg-panel: #161d2e;
+    --bg-card: #1c2438;
+    --border: #2a3450;
+    --text: #e8ecf6;
+    --text-dim: #93a0c0;
+    --accent: #4f7cff;
+    --accent-2: #22c1a2;
+    --warn: #ff8a4f;
+    --danger: #ff5c72;
+    --radius: 14px;
+    --shadow: 0 8px 24px rgba(0,0,0,0.35);
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  body {
+    padding: 24px 16px 60px;
+  }
+  .wrap {
+    max-width: 1080px;
+    margin: 0 auto;
+  }
+  header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .title-block h1 {
+    font-size: 1.6rem;
+    margin: 0 0 6px;
+    letter-spacing: -0.02em;
+  }
+  .title-block p {
+    margin: 0;
+    color: var(--text-dim);
+    font-size: 0.95rem;
+    max-width: 560px;
+  }
+  .lang-switch {
+    display: flex;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 4px;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+  .lang-switch button {
+    border: none;
+    background: transparent;
+    color: var(--text-dim);
+    padding: 7px 16px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .lang-switch button.active {
+    background: var(--accent);
+    color: #fff;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 20px;
+  }
+  @media (max-width: 860px) {
+    .grid { grid-template-columns: 1fr; }
+  }
+  .panel {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px;
+    box-shadow: var(--shadow);
+  }
+  .panel h2 {
+    font-size: 1.05rem;
+    margin: 0 0 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .panel h2 .badge {
+    font-size: 0.7rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 500;
+  }
+  .field {
+    margin-bottom: 16px;
+  }
+  .field label {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+  }
+  .field label .hint {
+    font-size: 0.72rem;
+    color: #5f6b8a;
+  }
+  .field input[type="number"],
+  .field input[type="text"],
+  .field select {
+    width: 100%;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.15s ease;
+  }
+  .field input:focus, .field select:focus {
+    border-color: var(--accent);
+  }
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .field .unit-input {
+    position: relative;
+  }
+  .field .unit-input span {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #5f6b8a;
+    font-size: 0.82rem;
+    pointer-events: none;
+  }
+  .section-sep {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 22px 0;
+  }
+  .subhead {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #5f6b8a;
+    margin: 0 0 14px;
+    font-weight: 600;
+  }
+  .results-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .stat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+  }
+  .stat-card .label {
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 6px;
+  }
+  .stat-card .value {
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .stat-card .value.positive { color: var(--accent-2); }
+  .stat-card .value.negative { color: var(--danger); }
+  .stat-card .value.neutral { color: var(--warn); }
+  .stat-card.wide { grid-column: 1 / -1; }
+  .headline {
+    background: linear-gradient(135deg, rgba(79,124,255,0.18), rgba(34,193,162,0.14));
+    border: 1px solid rgba(79,124,255,0.35);
+    border-radius: 14px;
+    padding: 20px;
+    text-align: center;
+  }
+  .headline .label {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .headline .value {
+    font-size: 2.4rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+  .headline .value.negative { color: var(--danger); }
+  .headline .value.positive { color: var(--accent-2); }
+  .headline .sub {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    margin-top: 6px;
+  }
+  table.breakdown {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+  }
+  table.breakdown th, table.breakdown td {
+    text-align: left;
+    padding: 9px 6px;
+    border-bottom: 1px solid var(--border);
+  }
+  table.breakdown th {
+    color: var(--text-dim);
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  table.breakdown td.num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  table.breakdown tr:last-child td { border-bottom: none; }
+  .bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 4px;
+  }
+  .bar-track {
+    flex: 1;
+    height: 8px;
+    background: var(--bg-card);
+    border-radius: 999px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    border-radius: 999px;
+    transition: width 0.25s ease;
+  }
+  footer {
+    margin-top: 28px;
+    text-align: center;
+    color: #5f6b8a;
+    font-size: 0.78rem;
+  }
+  .disclaimer {
+    margin-top: 14px;
+    font-size: 0.78rem;
+    color: #5f6b8a;
+    line-height: 1.5;
+  }
+  select {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' stroke='%2393a0c0' stroke-width='1.5' fill='none' fill-rule='evenodd'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 32px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="title-block">
+      <h1 data-i18n="title">ROI калькулятор впровадження ШІ-рішень</h1>
+      <p data-i18n="subtitle">Оцініть окупність впровадження штучного інтелекту у виробництві, логістиці, агросекторі чи іншому реальному секторі економіки.</p>
+    </div>
+    <div class="lang-switch">
+      <button id="btn-uk" onclick="setLang('uk')">UA</button>
+      <button id="btn-en" onclick="setLang('en')">EN</button>
+    </div>
+  </header>
+
+  <div class="grid">
+    <!-- INPUTS -->
+    <div class="panel">
+      <h2><span data-i18n="inputsTitle">Вхідні дані</span> <span class="badge" data-i18n="inputsBadge">заповніть форму</span></h2>
+
+      <p class="subhead" data-i18n="secInvestment">Інвестиції у впровадження</p>
+      <div class="field-row">
+        <div class="field">
+          <label for="capex"><span data-i18n="capexLabel">Одноразові витрати (CAPEX)</span></label>
+          <div class="unit-input">
+            <input type="number" id="capex" value="50000" min="0">
+            <span id="unit-capex">USD</span>
+          </div>
+        </div>
+        <div class="field">
+          <label for="opex"><span data-i18n="opexLabel">Щорічна підтримка (OPEX)</span></label>
+          <div class="unit-input">
+            <input type="number" id="opex" value="12000" min="0">
+            <span id="unit-opex">USD</span>
+          </div>
+        </div>
+      </div>
+
+      <hr class="section-sep">
+      <p class="subhead" data-i18n="secLabor">Економія на праці</p>
+      <div class="field-row">
+        <div class="field">
+          <label for="employees"><span data-i18n="employeesLabel">Кількість працівників, залучених у процес</span></label>
+          <input type="number" id="employees" value="10" min="0">
+        </div>
+        <div class="field">
+          <label for="salary"><span data-i18n="salaryLabel">Середня зарплата на місяць</span></label>
+          <div class="unit-input">
+            <input type="number" id="salary" value="1200" min="0">
+            <span id="unit-salary">USD</span>
+          </div>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="timeSaved"><span data-i18n="timeSavedLabel">Скорочення часу на рутинні операції</span> <span class="hint">%</span></label>
+          <div class="unit-input">
+            <input type="number" id="timeSaved" value="30" min="0" max="100">
+            <span>%</span>
+          </div>
+        </div>
+        <div class="field">
+          <label for="errorReduction"><span data-i18n="errorReductionLabel">Зменшення втрат від помилок/браку</span> <span class="hint">%</span></label>
+          <div class="unit-input">
+            <input type="number" id="errorReduction" value="20" min="0" max="100">
+            <span>%</span>
+          </div>
+        </div>
+      </div>
+
+      <hr class="section-sep">
+      <p class="subhead" data-i18n="secOps">Операційні показники</p>
+      <div class="field-row">
+        <div class="field">
+          <label for="annualLossFromErrors"><span data-i18n="annualLossLabel">Річні втрати від помилок / браку / простоїв</span></label>
+          <div class="unit-input">
+            <input type="number" id="annualLossFromErrors" value="80000" min="0">
+            <span id="unit-loss">USD</span>
+          </div>
+        </div>
+        <div class="field">
+          <label for="throughputGain"><span data-i18n="throughputLabel">Приріст продуктивності / обсягу випуску</span> <span class="hint">%</span></label>
+          <div class="unit-input">
+            <input type="number" id="throughputGain" value="15" min="0" max="100">
+            <span>%</span>
+          </div>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="revenueBase"><span data-i18n="revenueBaseLabel">Річна виручка, на яку впливає приріст продуктивності</span></label>
+          <div class="unit-input">
+            <input type="number" id="revenueBase" value="500000" min="0">
+            <span id="unit-revenue">USD</span>
+          </div>
+        </div>
+        <div class="field">
+          <label for="margin"><span data-i18n="marginLabel">Маржинальність (частка прибутку з виручки)</span> <span class="hint">%</span></label>
+          <div class="unit-input">
+            <input type="number" id="margin" value="25" min="0" max="100">
+            <span>%</span>
+          </div>
+        </div>
+      </div>
+
+      <hr class="section-sep">
+      <p class="subhead" data-i18n="secHorizon">Горизонт розрахунку</p>
+      <div class="field-row">
+        <div class="field">
+          <label for="years"><span data-i18n="yearsLabel">Період аналізу</span></label>
+          <select id="years">
+            <option value="1">1 <span data-i18n="yearWord"></span></option>
+            <option value="2">2</option>
+            <option value="3" selected>3</option>
+            <option value="5">5</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="currency"><span data-i18n="currencyLabel">Валюта</span></label>
+          <select id="currency">
+            <option value="USD" selected>USD</option>
+            <option value="UAH">UAH</option>
+            <option value="EUR">EUR</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULTS -->
+    <div class="panel results-panel">
+      <h2><span data-i18n="resultsTitle">Результати</span></h2>
+
+      <div class="headline">
+        <div class="label" data-i18n="roiLabel">ROI за обраний період</div>
+        <div class="value" id="roiValue">—</div>
+        <div class="sub" id="roiSub"></div>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="label" data-i18n="paybackLabel">Термін окупності</div>
+          <div class="value" id="paybackValue">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="label" data-i18n="annualBenefitLabel">Річна вигода</div>
+          <div class="value" id="annualBenefitValue">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="label" data-i18n="totalBenefitLabel">Сумарна вигода за період</div>
+          <div class="value" id="totalBenefitValue">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="label" data-i18n="netValueLabel">Чистий ефект (вигода − витрати)</div>
+          <div class="value" id="netValueValue">—</div>
+        </div>
+        <div class="stat-card wide">
+          <div class="label" data-i18n="totalCostLabel">Сумарні витрати за період</div>
+          <div class="value" id="totalCostValue">—</div>
+          <div class="bar-wrap">
+            <div class="bar-track"><div class="bar-fill" id="costBar" style="width:0%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <p class="subhead" data-i18n="breakdownTitle">Джерела вигоди</p>
+        <table class="breakdown">
+          <thead>
+            <tr>
+              <th data-i18n="breakdownSource">Джерело</th>
+              <th class="num" data-i18n="breakdownAnnual">На рік</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td data-i18n="breakdownLabor">Економія на праці</td>
+              <td class="num" id="laborBenefit">—</td>
+            </tr>
+            <tr>
+              <td data-i18n="breakdownErrors">Скорочення втрат від помилок</td>
+              <td class="num" id="errorBenefit">—</td>
+            </tr>
+            <tr>
+              <td data-i18n="breakdownThroughput">Приріст прибутку від продуктивності</td>
+              <td class="num" id="throughputBenefit">—</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="disclaimer" data-i18n="disclaimer">Розрахунок є орієнтовним і призначений для попередньої оцінки економічного ефекту. Для точних інвестиційних рішень рекомендується провести детальний аналіз з урахуванням специфіки підприємства.</p>
+    </div>
+  </div>
+
+  <footer data-i18n="footer">ROI-калькулятор впровадження ШІ · орієнтовний розрахунок, не є фінансовою консультацією</footer>
+</div>
+
+<script>
+const translations = {
+  uk: {
+    pageTitle: "ROI калькулятор впровадження ШІ",
+    title: "ROI калькулятор впровадження ШІ-рішень",
+    subtitle: "Оцініть окупність впровадження штучного інтелекту у виробництві, логістиці, агросекторі чи іншому реальному секторі економіки.",
+    inputsTitle: "Вхідні дані",
+    inputsBadge: "заповніть форму",
+    secInvestment: "Інвестиції у впровадження",
+    capexLabel: "Одноразові витрати (CAPEX)",
+    opexLabel: "Щорічна підтримка (OPEX)",
+    secLabor: "Економія на праці",
+    employeesLabel: "Кількість працівників, залучених у процес",
+    salaryLabel: "Середня зарплата на місяць",
+    timeSavedLabel: "Скорочення часу на рутинні операції",
+    errorReductionLabel: "Зменшення втрат від помилок/браку",
+    secOps: "Операційні показники",
+    annualLossLabel: "Річні втрати від помилок / браку / простоїв",
+    throughputLabel: "Приріст продуктивності / обсягу випуску",
+    revenueBaseLabel: "Річна виручка, на яку впливає приріст продуктивності",
+    marginLabel: "Маржинальність (частка прибутку з виручки)",
+    secHorizon: "Горизонт розрахунку",
+    yearsLabel: "Період аналізу",
+    yearWord: "рік",
+    currencyLabel: "Валюта",
+    resultsTitle: "Результати",
+    roiLabel: "ROI за обраний період",
+    paybackLabel: "Термін окупності",
+    annualBenefitLabel: "Річна вигода",
+    totalBenefitLabel: "Сумарна вигода за період",
+    netValueLabel: "Чистий ефект (вигода − витрати)",
+    totalCostLabel: "Сумарні витрати за період",
+    breakdownTitle: "Джерела вигоди",
+    breakdownSource: "Джерело",
+    breakdownAnnual: "На рік",
+    breakdownLabor: "Економія на праці",
+    breakdownErrors: "Скорочення втрат від помилок",
+    breakdownThroughput: "Приріст прибутку від продуктивності",
+    disclaimer: "Розрахунок є орієнтовним і призначений для попередньої оцінки економічного ефекту. Для точних інвестиційних рішень рекомендується провести детальний аналіз з урахуванням специфіки підприємства.",
+    footer: "ROI-калькулятор впровадження ШІ · орієнтовний розрахунок, не є фінансовою консультацією",
+    paybackNever: "не окупається",
+    paybackImmediate: "миттєво",
+    years: "р.",
+    months: "міс.",
+    roiSubText: (n) => `за ${n} ${n === 1 ? "рік" : (n < 5 ? "роки" : "років")} аналізу`
+  },
+  en: {
+    pageTitle: "AI Implementation ROI Calculator",
+    title: "AI Implementation ROI Calculator",
+    subtitle: "Estimate the payback of deploying AI in manufacturing, logistics, agriculture, or another real-economy sector.",
+    inputsTitle: "Input Data",
+    inputsBadge: "fill in the form",
+    secInvestment: "Implementation Investment",
+    capexLabel: "One-time costs (CAPEX)",
+    opexLabel: "Annual support (OPEX)",
+    secLabor: "Labor Savings",
+    employeesLabel: "Number of employees involved in the process",
+    salaryLabel: "Average monthly salary",
+    timeSavedLabel: "Reduction of time on routine operations",
+    errorReductionLabel: "Reduction of losses from errors/defects",
+    secOps: "Operational Metrics",
+    annualLossLabel: "Annual losses from errors / defects / downtime",
+    throughputLabel: "Productivity / output volume increase",
+    revenueBaseLabel: "Annual revenue affected by the productivity gain",
+    marginLabel: "Margin (share of profit in revenue)",
+    secHorizon: "Calculation Horizon",
+    yearsLabel: "Analysis period",
+    yearWord: "year",
+    currencyLabel: "Currency",
+    resultsTitle: "Results",
+    roiLabel: "ROI over the selected period",
+    paybackLabel: "Payback period",
+    annualBenefitLabel: "Annual benefit",
+    totalBenefitLabel: "Total benefit over the period",
+    netValueLabel: "Net effect (benefit − costs)",
+    totalCostLabel: "Total costs over the period",
+    breakdownTitle: "Sources of Benefit",
+    breakdownSource: "Source",
+    breakdownAnnual: "Per year",
+    breakdownLabor: "Labor savings",
+    breakdownErrors: "Reduction of error-related losses",
+    breakdownThroughput: "Profit gain from productivity",
+    disclaimer: "This calculation is indicative and intended for a preliminary estimate of economic effect. For precise investment decisions, a detailed analysis accounting for the specifics of your business is recommended.",
+    footer: "AI Implementation ROI Calculator · indicative estimate, not financial advice",
+    paybackNever: "never pays back",
+    paybackImmediate: "immediate",
+    years: "yr",
+    months: "mo",
+    roiSubText: (n) => `over ${n} ${n === 1 ? "year" : "years"} of analysis`
+  }
+};
+
+let currentLang = 'uk';
+
+function setLang(lang) {
+  currentLang = lang;
+  document.getElementById('btn-uk').classList.toggle('active', lang === 'uk');
+  document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+  document.documentElement.lang = lang;
+  const t = translations[lang];
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (typeof t[key] === 'string') {
+      el.textContent = t[key];
+    }
+  });
+  document.title = t.pageTitle;
+  try { localStorage.setItem('roi-calc-lang', lang); } catch (e) {}
+  calculate();
+}
+
+function fmtMoney(value, currency) {
+  const rounded = Math.round(value);
+  const abs = Math.abs(rounded);
+  const sign = rounded < 0 ? "-" : "";
+  const formatted = abs.toLocaleString(currentLang === 'uk' ? 'uk-UA' : 'en-US');
+  const symbols = { USD: '$', EUR: '€', UAH: '₴' };
+  const sym = symbols[currency] || currency;
+  if (currency === 'UAH') {
+    return `${sign}${formatted} ${sym}`;
+  }
+  return `${sign}${sym}${formatted}`;
+}
+
+function updateUnitLabels() {
+  const currency = document.getElementById('currency').value;
+  ['unit-capex', 'unit-opex', 'unit-salary', 'unit-loss', 'unit-revenue'].forEach(id => {
+    document.getElementById(id).textContent = currency;
+  });
+}
+
+function calculate() {
+  const t = translations[currentLang];
+  const currency = document.getElementById('currency').value;
+  updateUnitLabels();
+
+  const capex = parseFloat(document.getElementById('capex').value) || 0;
+  const opex = parseFloat(document.getElementById('opex').value) || 0;
+  const employees = parseFloat(document.getElementById('employees').value) || 0;
+  const salary = parseFloat(document.getElementById('salary').value) || 0;
+  const timeSaved = (parseFloat(document.getElementById('timeSaved').value) || 0) / 100;
+  const errorReduction = (parseFloat(document.getElementById('errorReduction').value) || 0) / 100;
+  const annualLoss = parseFloat(document.getElementById('annualLossFromErrors').value) || 0;
+  const throughputGain = (parseFloat(document.getElementById('throughputGain').value) || 0) / 100;
+  const revenueBase = parseFloat(document.getElementById('revenueBase').value) || 0;
+  const margin = (parseFloat(document.getElementById('margin').value) || 0) / 100;
+  const years = parseInt(document.getElementById('years').value) || 1;
+
+  const laborBenefit = employees * salary * 12 * timeSaved;
+  const errorBenefit = annualLoss * errorReduction;
+  const throughputBenefit = revenueBase * throughputGain * margin;
+
+  const annualBenefit = laborBenefit + errorBenefit + throughputBenefit;
+  const totalBenefit = annualBenefit * years;
+  const totalCost = capex + opex * years;
+  const netValue = totalBenefit - totalCost;
+  const roi = totalCost > 0 ? (netValue / totalCost) * 100 : (netValue > 0 ? Infinity : 0);
+
+  let paybackText;
+  if (annualBenefit <= 0) {
+    paybackText = t.paybackNever;
+  } else {
+    const paybackYears = capex / annualBenefit;
+    if (opex > annualBenefit) {
+      paybackText = t.paybackNever;
+    } else if (paybackYears <= 0) {
+      paybackText = t.paybackImmediate;
+    } else if (paybackYears < 1) {
+      const months = Math.round(paybackYears * 12);
+      paybackText = `${months} ${t.months}`;
+    } else {
+      paybackText = `${paybackYears.toFixed(1)} ${t.years}`;
+    }
+  }
+
+  const roiEl = document.getElementById('roiValue');
+  roiEl.textContent = isFinite(roi) ? `${roi >= 0 ? '+' : ''}${roi.toFixed(0)}%` : '—';
+  roiEl.classList.toggle('negative', roi < 0);
+  roiEl.classList.toggle('positive', roi >= 0);
+  document.getElementById('roiSub').textContent = t.roiSubText(years);
+
+  document.getElementById('paybackValue').textContent = paybackText;
+  document.getElementById('annualBenefitValue').textContent = fmtMoney(annualBenefit, currency);
+  document.getElementById('totalBenefitValue').textContent = fmtMoney(totalBenefit, currency);
+
+  const netEl = document.getElementById('netValueValue');
+  netEl.textContent = fmtMoney(netValue, currency);
+  netEl.classList.remove('positive', 'negative', 'neutral');
+  netEl.classList.add(netValue > 0 ? 'positive' : (netValue < 0 ? 'negative' : 'neutral'));
+
+  document.getElementById('totalCostValue').textContent = fmtMoney(totalCost, currency);
+
+  const maxRef = Math.max(totalBenefit, totalCost, 1);
+  const costPct = Math.min(100, (totalCost / maxRef) * 100);
+  document.getElementById('costBar').style.width = `${costPct}%`;
+
+  document.getElementById('laborBenefit').textContent = fmtMoney(laborBenefit, currency);
+  document.getElementById('errorBenefit').textContent = fmtMoney(errorBenefit, currency);
+  document.getElementById('throughputBenefit').textContent = fmtMoney(throughputBenefit, currency);
+}
+
+document.querySelectorAll('input, select').forEach(el => {
+  el.addEventListener('input', calculate);
+  el.addEventListener('change', calculate);
+});
+
+let savedLang = 'uk';
+try {
+  savedLang = localStorage.getItem('roi-calc-lang') || 'uk';
+} catch (e) {}
+setLang(savedLang === 'en' ? 'en' : 'uk');
+</script>
+</body>
+</html>
